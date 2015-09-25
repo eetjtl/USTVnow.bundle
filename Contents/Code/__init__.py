@@ -95,12 +95,14 @@ def GetItems(title, url, xp):
 ####################################################################################################
 @route(PREFIX + '/getguide')
 def GetGuide():
+    n = 0
+    name = ""
     oc = ObjectContainer(title2='Guide')
     page = HTML.ElementFromURL(GUIDE % (Prefs["username"], Prefs["password"]), cacheTime=0)
     channels = page.xpath('//td[contains(@class, "chnl")]')
     for channel in channels:
         show_info = []
-        name = channel.xpath('.//strong')[0].text
+        
         shows = channel.xpath('following-sibling::td//td[@title]')
         for show in shows:
             content = show.xpath('.//div[contains(@class, "cntnt")]')[0]
@@ -141,7 +143,11 @@ def GetGuide():
                 }
             )
         show_info = JSON.StringFromObject(show_info)
+        name = page.xpath(".//a[@class='play']/strong")[n].text
         oc.add(DirectoryObject(key = Callback(GuideSubMenu, title=name, data=String.Encode(show_info)), title=name, thumb=R(name + '.jpg')))
+        if name != "...": n = n + 1
+      	else: n = n + 2
+      	if n == 28: n = 27  
     return oc
 
 ####################################################################################################
